@@ -154,8 +154,8 @@
 
   var state = { day: votingDay(), votes: {} };
   var selectedPerson = null;
-  var winnerActive = false;    // winner overlay currently shown
-  var winnerDismissed = false; // user reopened voting after a mistake
+  var winnerActive = false;      // winner overlay currently shown
+  var dismissedWinnerId = null;  // winner the user dismissed as a mistake
 
   function votingDay() {
     var n = new Date();
@@ -184,7 +184,7 @@
     save();
     selectedPerson = null;
     winnerActive = false;
-    winnerDismissed = false;
+    dismissedWinnerId = null;
     hideWinner();
     showScreen('who');
     render();
@@ -282,14 +282,15 @@
     var max = Math.max(c.botka, c.koimak, c.yomyrka);
     document.getElementById('tie').classList.toggle('hidden', !(total === PEOPLE.length && max < 2));
 
-    // Winner
+    // Winner: show immediately whenever any food reaches 2 votes
     var w = currentWinner();
-    if (w && !winnerActive && !winnerDismissed) showWinner(w);
+    if (w && !winnerActive && dismissedWinnerId !== w.id) showWinner(w);
   }
 
   function castVote(personId, foodId) {
     if (!personId) return;
     state.votes[personId] = foodId;
+    dismissedWinnerId = null; // every new vote re-evaluates the winner from scratch
     save();
     render();
     if (!currentWinner()) showScreen('who');
@@ -310,7 +311,8 @@
   }
 
   document.getElementById('fix-btn').addEventListener('click', function () {
-    winnerDismissed = true;
+    var w = currentWinner();
+    dismissedWinnerId = w ? w.id : null;
     winnerActive = false;
     hideWinner();
     showScreen('who');
