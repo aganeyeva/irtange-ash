@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Бүген нәрсә ашыйбыз? — Иртәнге аш</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    color: #4a3226;
+    background: linear-gradient(160deg, #fff6d9 0%, #ffe3b3 35%, #ffc9a8 70%, #ffb3a7 100%);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 26px 20px 48px; }
+  header { text-align: center; }
+  header .logo { font-size: 54px; }
+  h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 900; margin: 6px 0 4px; }
+  .sub { font-size: 18px; font-weight: 700; opacity: .7; }
+  .card {
+    background: rgba(255,255,255,.88);
+    border-radius: 28px;
+    padding: 26px 22px;
+    box-shadow: 0 12px 32px rgba(180, 90, 40, .16);
+    margin-top: 22px;
+  }
+  h2 { text-align: center; font-size: clamp(22px, 3.6vw, 30px); font-weight: 800; margin: 0 0 20px; }
+  .people { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .person {
+    border: none; border-radius: 24px; padding: 24px 10px 20px;
+    font-family: inherit; font-size: 25px; font-weight: 800; color: #4a3226;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.10);
+    transition: transform .12s ease;
+  }
+  .person:active { transform: scale(.95); }
+  .person .ava { font-size: 56px; line-height: 1; }
+  .person .badge {
+    font-size: 15px; font-weight: 800; background: rgba(255,255,255,.9);
+    border-radius: 999px; padding: 5px 14px; min-height: 28px;
+  }
+  .person .badge:empty { visibility: hidden; }
+  .foods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 560px) { .foods { grid-template-columns: 1fr; } }
+  .food {
+    border: none; border-radius: 24px; padding: 30px 10px 26px;
+    background: #fff; font-family: inherit; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.10);
+    transition: transform .12s ease;
+  }
+  .food:active { transform: scale(.95); }
+  .food .emoji { font-size: 76px; line-height: 1; }
+  .food .fname { font-size: 26px; font-weight: 800; color: #4a3226; }
+  .back {
+    display: block; margin: 20px auto 0; border: none; background: none;
+    font-family: inherit; font-size: 19px; font-weight: 800; color: #a06a42;
+    cursor: pointer; padding: 12px 24px;
+  }
+  .results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .res {
+    background: #fff; border-radius: 20px; padding: 16px 12px; text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,.07);
+  }
+  .res .emoji { font-size: 44px; }
+  .res .count { font-size: 40px; font-weight: 900; margin: 2px 0; }
+  .res .who { font-size: 15px; font-weight: 700; opacity: .65; min-height: 22px; }
+  .nores { text-align: center; font-size: 18px; font-weight: 700; opacity: .65; padding: 8px 0; }
+  .tie {
+    margin-top: 16px; text-align: center; font-size: 18px; font-weight: 800;
+    background: #fff3cd; border-radius: 16px; padding: 14px;
+  }
+  #winner {
+    position: fixed; inset: 0; z-index: 50; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 24px;
+    background: linear-gradient(160deg, #ffd93b 0%, #ff9f43 45%, #ff6b9d 100%);
+    color: #4a2200;
+  }
+  #winner.show { display: flex; }
+  #winner .big { font-size: 110px; line-height: 1; animation: bounce 1s ease infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-16px) scale(1.06); } }
+  #winner h1 { font-size: clamp(34px, 7vw, 60px); margin: 18px 0 6px; }
+  #winner p { font-size: 22px; font-weight: 800; margin: 6px 0; }
+  #winner .note { font-size: 16px; font-weight: 700; opacity: .75; margin-top: 14px; }
+  #winner .fix {
+    margin-top: 26px; border: none; background: rgba(255,255,255,.5);
+    font-family: inherit; font-size: 16px; font-weight: 800; color: #7a4a12;
+    border-radius: 999px; padding: 12px 26px; cursor: pointer;
+  }
+  #confetti { position: fixed; inset: 0; z-index: 60; pointer-events: none; display: none; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🍽️</div>
+    <h1>Бүген нәрсә ашыйбыз?</h1>
+    <div class="sub">Иртәнге аш өчен гаилә тавышы</div>
+  </header>
+
+  <div class="card" id="screen-who">
+    <h2>Кем тавыш бирә? 👆</h2>
+    <div class="people" id="people"></div>
+  </div>
+
+  <div class="card hidden" id="screen-what">
+    <h2 id="what-title"></h2>
+    <div class="foods" id="foods"></div>
+    <button class="back" id="back-btn">← Артка</button>
+  </div>
+
+  <div class="card">
+    <h2>Тавышлар 📊</h2>
+    <div class="results" id="results"></div>
+    <div class="tie hidden" id="tie">Тавышлар тигез булды! Кемдер фикерен үзгәртә ала — исемеңә бас 👆</div>
+  </div>
+</div>
+
+<div id="winner">
+  <div class="big" id="winner-emoji">🎉</div>
+  <h1 id="winner-text"></h1>
+  <p>Тәмле булсын! 😋</p>
+  <div class="note">Иртәгә иртән сәгать 6:00 да яңа тавыш башлана</div>
+  <button class="fix" id="fix-btn">Ялгыш басылды — төзәтергә</button>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function () {
+  'use strict';
+
+  var PEOPLE = [
+    { id: 'ati',    name: 'Әти',   emoji: '👨', color: '#bbdefb' },
+    { id: 'ani',    name: 'Әни',   emoji: '👩', color: '#f8bbd0' },
+    { id: 'samira', name: 'Самира', emoji: '👧', color: '#d1c4e9' },
+    { id: 'emin',   name: 'Әмин',  emoji: '👦', color: '#c8e6c9' }
+  ];
+  var FOODS = [
+    { id: 'botka',   name: 'Ботка',   emoji: '🥣' },
+    { id: 'koimak',  name: 'Коймак',  emoji: '🥞' },
+    { id: 'yomyrka', name: 'Йомырка', emoji: '🍳' }
+  ];
+  var KEY = 'irtange-ash-v1';
+
+  var state = { day: votingDay(), votes: {} };
+  var selectedPerson = null;
+  var winnerActive = false;    // winner overlay currently shown
+  var winnerDismissed = false; // user reopened voting after a mistake
+
+  function votingDay() {
+    var n = new Date();
+    if (n.getHours() < 6) n.setDate(n.getDate() - 1);
+    return n.getFullYear() + '-' +
+      String(n.getMonth() + 1).padStart(2, '0') + '-' +
+      String(n.getDate()).padStart(2, '0');
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.day === votingDay() && s.votes) state = s;
+      }
+    } catch (e) { /* storage unavailable — keep in-memory */ }
+  }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function reset() {
+    state = { day: votingDay(), votes: {} };
+    save();
+    selectedPerson = null;
+    winnerActive = false;
+    winnerDismissed = false;
+    hideWinner();
+    showScreen('who');
+    render();
+    scheduleNextReset();
+  }
+
+  function maybeReset() {
+    if (state.day !== votingDay()) reset();
+  }
+
+  function personById(id) { return PEOPLE.find(function (p) { return p.id === id; }); }
+  function foodById(id) { return FOODS.find(function (f) { return f.id === id; }); }
+
+  function counts() {
+    var c = {};
+    FOODS.forEach(function (f) { c[f.id] = 0; });
+    Object.keys(state.votes).forEach(function (pid) {
+      var fid = state.votes[pid];
+      if (c[fid] !== undefined) c[fid]++;
+    });
+    return c;
+  }
+
+  function votersFor(foodId) {
+    return Object.keys(state.votes)
+      .filter(function (pid) { return state.votes[pid] === foodId; })
+      .map(function (pid) { return personById(pid).name; });
+  }
+
+  function currentWinner() {
+    var c = counts();
+    for (var i = 0; i < FOODS.length; i++) {
+      if (c[FOODS[i].id] >= 2) return FOODS[i];
+    }
+    return null;
+  }
+
+  function showScreen(which) {
+    document.getElementById('screen-who').classList.toggle('hidden', which !== 'who');
+    document.getElementById('screen-what').classList.toggle('hidden', which !== 'what');
+  }
+
+  function render() {
+    // People buttons
+    var peopleEl = document.getElementById('people');
+    peopleEl.innerHTML = '';
+    PEOPLE.forEach(function (p) {
+      var b = document.createElement('button');
+      b.className = 'person';
+      b.style.background = p.color;
+      var votedFood = state.votes[p.id] ? foodById(state.votes[p.id]) : null;
+      b.innerHTML =
+        '<span class="ava">' + p.emoji + '</span>' +
+        '<span>' + p.name + '</span>' +
+        '<span class="badge">' + (votedFood ? '✓ ' + votedFood.emoji : '') + '</span>';
+      b.addEventListener('click', function () {
+        selectedPerson = p.id;
+        document.getElementById('what-title').textContent = p.name + ', нәрсә ашыйсың килә?';
+        showScreen('what');
+      });
+      peopleEl.appendChild(b);
+    });
+
+    // Food buttons
+    var foodsEl = document.getElementById('foods');
+    foodsEl.innerHTML = '';
+    FOODS.forEach(function (f) {
+      var b = document.createElement('button');
+      b.className = 'food';
+      b.innerHTML = '<span class="emoji">' + f.emoji + '</span><span class="fname">' + f.name + '</span>';
+      b.addEventListener('click', function () { castVote(selectedPerson, f.id); });
+      foodsEl.appendChild(b);
+    });
+
+    // Results
+    var c = counts();
+    var total = Object.keys(state.votes).length;
+    var resEl = document.getElementById('results');
+    resEl.innerHTML = '';
+    if (total === 0) {
+      resEl.innerHTML = '<div class="nores" style="grid-column:1/-1">Әлегә тавышлар юк — беренче бул! 🙋</div>';
+    } else {
+      FOODS.forEach(function (f) {
+        var d = document.createElement('div');
+        d.className = 'res';
+        d.innerHTML =
+          '<div class="emoji">' + f.emoji + '</div>' +
+          '<div class="count">' + c[f.id] + '</div>' +
+          '<div class="who">' + votersFor(f.id).join(', ') + '</div>';
+        resEl.appendChild(d);
+      });
+    }
+
+    // Tie notice: everyone voted, nobody reached 2
+    var max = Math.max(c.botka, c.koimak, c.yomyrka);
+    document.getElementById('tie').classList.toggle('hidden', !(total === PEOPLE.length && max < 2));
+
+    // Winner
+    var w = currentWinner();
+    if (w && !winnerActive && !winnerDismissed) showWinner(w);
+  }
+
+  function castVote(personId, foodId) {
+    if (!personId) return;
+    state.votes[personId] = foodId;
+    save();
+    render();
+    if (!currentWinner()) showScreen('who');
+  }
+
+  function showWinner(food) {
+    winnerActive = true;
+    document.getElementById('winner-emoji').textContent = food.emoji;
+    document.getElementById('winner-text').textContent = 'Бүген ' + food.name.toLowerCase() + ' ашыйбыз!';
+    document.getElementById('winner').classList.add('show');
+    launchConfetti();
+  }
+
+  function hideWinner() {
+    document.getElementById('winner').classList.remove('show');
+    var cv = document.getElementById('confetti');
+    cv.style.display = 'none';
+  }
+
+  document.getElementById('fix-btn').addEventListener('click', function () {
+    winnerDismissed = true;
+    winnerActive = false;
+    hideWinner();
+    showScreen('who');
+    render();
+  });
+
+  document.getElementById('back-btn').addEventListener('click', function () {
+    showScreen('who');
+  });
+
+  // Confetti
+  function launchConfetti() {
+    var cv = document.getElementById('confetti');
+    var ctx = cv.getContext('2d');
+    cv.width = window.innerWidth;
+    cv.height = window.innerHeight;
+    cv.style.display = 'block';
+    var colors = ['#ff6b9d', '#ffd93b', '#6bcb77', '#4d96ff', '#ff9f43', '#c780fa'];
+    var pieces = [];
+    for (var i = 0; i < 160; i++) {
+      pieces.push({
+        x: Math.random() * cv.width,
+        y: -20 - Math.random() * cv.height * 0.5,
+        w: 6 + Math.random() * 8,
+        h: 8 + Math.random() * 10,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        vy: 2 + Math.random() * 3.5,
+        vx: -1.5 + Math.random() * 3,
+        r: Math.random() * Math.PI,
+        vr: -0.1 + Math.random() * 0.2
+      });
+    }
+    var start = Date.now();
+    (function tick() {
+      if (Date.now() - start > 4500) { cv.style.display = 'none'; return; }
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      pieces.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        if (p.y > cv.height + 30) { p.y = -20; p.x = Math.random() * cv.width; }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.r);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      requestAnimationFrame(tick);
+    })();
+  }
+
+  // Reset scheduling: check periodically + exactly at next 06:00
+  function scheduleNextReset() {
+    var now = new Date();
+    var next = new Date(now);
+    next.setHours(6, 0, 5, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    setTimeout(function () { maybeReset(); scheduleNextReset(); }, next - now + 1000);
+  }
+
+  load();
+  maybeReset();
+  render();
+  scheduleNextReset();
+  setInterval(maybeReset, 30000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) maybeReset();
+  });
+})();
+</script>
+</body>
+</html>
