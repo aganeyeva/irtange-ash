@@ -296,10 +296,20 @@
     if (!currentWinner()) showScreen('who');
   }
 
+  // 11:00гә кадәр — «ашыйбыз», 11:00дән соң — «ашадык» (иртәнге аш ашалган инде)
+  function winnerText(food) {
+    var past = new Date().getHours() >= 11;
+    return 'Бүген ' + food.name.toLowerCase() + (past ? ' ашадык.' : ' ашыйбыз!');
+  }
+  function refreshWinnerText() {
+    if (!winnerActive) return;
+    var w = currentWinner();
+    if (w) document.getElementById('winner-text').textContent = winnerText(w);
+  }
   function showWinner(food) {
     winnerActive = true;
     document.getElementById('winner-emoji').textContent = food.emoji;
-    document.getElementById('winner-text').textContent = 'Бүген ' + food.name.toLowerCase() + ' ашыйбыз!';
+    document.getElementById('winner-text').textContent = winnerText(food);
     document.getElementById('winner').classList.add('show');
     launchConfetti();
   }
@@ -376,9 +386,11 @@
   maybeReset();
   render();
   scheduleNextReset();
-  setInterval(maybeReset, 30000);
+  setInterval(function () { maybeReset(); refreshWinnerText(); }, 30000);
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) maybeReset();
+    if (document.hidden) return;
+    maybeReset();
+    refreshWinnerText();
   });
 })();
 </script>
